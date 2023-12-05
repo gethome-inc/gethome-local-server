@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3010:3010"
+      - "3011:3011"
+    depends_on:
+      - mysql
+    environment:
+      - ./.env
+      - HTTP_PORT=3010
+      - HTTPS_PORT=3011
+      - KNEX_HOST=mysql
+      - DB_PORT=3306
+      - MOSQUITTO_LOCAL_NAME=mosquitto:1883
+      - MOSQUITTO_REMOTE_NAME=gethome.me:1883
+      - SITE_REMOTE_NAME=gethome.me
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./app:/app # Монтирование папки с исполняемыми файлами
+      - ./ssl:/ssl # Монтирование SSL сертификатов
+      - ./serverConfig.txt:/serverConfig.txt
+
+  mysql:
+    image: mysql:8.0.30
+    command: |
+      --default-authentication-plugin=mysql_native_password
+      --sql_require_primary_key=ON
+      --sql_mode=ANSI_QUOTES,ERROR_FOR_DIVISION_BY_ZERO,IGNORE_SPACE,NO_ENGINE_SUBSTITUTION,NO_ZERO_DATE,NO_ZERO_IN_DATE,ONLY_FULL_GROUP_BY,PIPES_AS_CONCAT,REAL_AS_FLOAT,STRICT_ALL_TABLES
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: serverhome0001
+      MYSQL_DATABASE: gethome_server
+      MYSQL_INITDB_CHARSET: utf8mb4
+      MYSQL_CHARSET: utf8mb4
+    ports:
+      - "3310:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  mosquitto:
+    image: eclipse-mosquitto:2.0.14
+    restart: unless-stopped
+    ports:
+      - "1884:1883"  # Использование порта 1884 на хосте для перенаправления на 1883 в контейнере
+    volumes:
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+      - ./mosquitto/config:/mosquitto/config
+
+  zigbee2mqtt:
+    image: koenkk/zigbee2mqtt
+    restart: unless-stopped
+    depends_on:
+      - mosquitto
+    environment:
+      - MQTT_SERVER=mosquitto
+      - MQTT_PORT=1883
+    volumes:
+      - zigbee2mqtt_data:/app/data
+      - /run/udev:/run/udev:ro
+    ports:
+      # Frontend port
+      - 8080:8080
+    devices:
+      # - /dev/ttyACM0:/dev/ttyACM0
+      - /dev/tty.usbserial-202308291718301:/dev/ttyACM0 # Нужно переделать - брать из файла конфига
+
+volumes:
+  db_data:
+  mosquitto_data:
+  mosquitto_log:
+  zigbee2mqtt_data:
+
+# Нужно добавить homebridge
