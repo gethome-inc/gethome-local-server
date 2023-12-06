@@ -98,12 +98,20 @@ echo "Используемый IP-адрес: $LOCAL_IP"
 # Проверка наличия SSL сертификатов
 read -p "Создать SSL сертификаты? (y/n): " ssl_answer
 if [[ "$ssl_answer" == "y" ]]; then
+    # Проверка существования директории ssl
+    if [ ! -d "ssl" ]; then
+        echo "Директория 'ssl' не найдена. Создание директории..."
+        mkdir ssl
+    fi
+
     if [ ! -f "ssl/cert.pem" ] || [ ! -f "ssl/key.pem" ]; then
         echo "Создание SSL сертификатов..."
         mkcert -cert-file ssl/cert.pem -key-file ssl/key.pem "$LOCAL_IP"
     else
         echo "SSL сертификаты уже существуют."
     fi
+else
+    echo "Создание SSL сертификатов пропущено."
 fi
 
 
