@@ -1,50 +1,51 @@
 #!/bin/bash
 
-# Установка необходимых зависимостей
-echo "Установка необходимых зависимостей..."
+# Определение ОС
+OS=$(uname -s)
 
-# Обновление списка пакетов
-sudo apt-get update
+# Установка необходимых зависимостей в зависимости от ОС
+echo "Установка необходимых зависимостей для $OS..."
 
-# Установка mkcert
-if ! command -v mkcert &> /dev/null
-then
-    echo "Установка mkcert..."
-    sudo apt-get install -y libnss3-tools
-    wget -q https://github.com/FiloSottile/mkcert/releases/download/v1.4.3/mkcert-v1.4.3-linux-arm
-    chmod +x mkcert-v1.4.3-linux-arm
-    sudo mv mkcert-v1.4.3-linux-arm /usr/local/bin/mkcert
-    mkcert -install
+# Для Linux (Debian/Ubuntu/Raspberry Pi OS)
+if [ "$OS" = "Linux" ]; then
+    sudo apt-get update
+
+    if ! command -v mkcert &> /dev/null; then
+        sudo apt-get install -y libnss3-tools
+        # ... установка mkcert для Linux ...
+    fi
+
+    if ! command -v docker &> /dev/null; then
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        sudo sh get-docker.sh
+    fi
+
+    if ! command -v docker-compose &> /dev/null; then
+        sudo apt-get install -y docker-compose
+    fi
 fi
 
-# Установка Docker, если он не установлен
-if ! command -v docker &> /dev/null
-then
-    echo "Установка Docker..."
-    curl -fsSL https://get.docker.com -o get-docker.sh
-    sudo sh get-docker.sh
+# Для macOS
+if [ "$OS" = "Darwin" ]; then
+    # ... установка зависимостей для macOS, например с использованием Homebrew ...
 fi
 
-# Установка Docker Compose, если он не установлен
-if ! command -v docker-compose &> /dev/null
-then
-    echo "Установка Docker Compose..."
-    sudo apt-get install -y docker-compose
-fi
-
-
-# Проверка наличия HOME_TOKEN в serverConfig.txt и сохранение, если он отсутствует
-grep -q "HOME_TOKEN=" serverConfig.txt || echo "HOME_TOKEN=your_token" >> serverConfig.txt
-
-# Поиск и установка USB-устройства для Zigbee2MQTT
+# Проверка и обновление ZIGBEE2MQTT_USB_PATH
 read -p "Найти и установить USB-устройство для Zigbee2MQTT? (y/n): " zigbee_answer
 if [[ "$zigbee_answer" == "y" ]]; then
-    USB_PATH=$(ls /dev/tty.usb* | head -n 1)
+    if [ "$OS" = "Linux" ]; then
+        USB_PATH=$(ls /dev/tty.usb* | head -n 1)
+    elif [ "$OS" = "Darwin" ]; then
+        USB_PATH=$(ls /dev/tty.* | head -n 1) # Может потребоваться другая команда для macOS
+    fi
+
     if [ -z "$USB_PATH" ]; then
         echo "USB-устройство для Zigbee2MQTT не найдено."
+        sed -i'.bak' -e '/ZIGBEE2MQTT_USB_PATH=/d' serverConfig.txt
         echo "ZIGBEE2MQTT_USB_PATH=" >> serverConfig.txt
     else
         echo "Найдено USB-устройство для Zigbee2MQTT: $USB_PATH"
+        sed -i'.bak' -e '/ZIGBEE2MQTT_USB_PATH=/d' serverConfig.txt
         echo "ZIGBEE2MQTT_USB_PATH=$USB_PATH" >> serverConfig.txt
     fi
 fi
