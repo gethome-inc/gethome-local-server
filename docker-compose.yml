@@ -10,7 +10,6 @@ services:
     depends_on:
       - mysql
     environment:
-      - ./.env
       - HTTP_PORT=3010
       - HTTPS_PORT=3011
       - KNEX_HOST=mysql
@@ -18,6 +17,7 @@ services:
       - MOSQUITTO_LOCAL_NAME=mosquitto:1883
       - MOSQUITTO_REMOTE_NAME=gethome.me:1883
       - SITE_REMOTE_NAME=gethome.me
+      - IS_LOCAL_SERVER=true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./app:/app # Монтирование папки с исполняемыми файлами
