@@ -27,7 +27,32 @@ fi
 
 # Для macOS
 if [ "$OS" = "Darwin" ]; then
-    # ... установка зависимостей для macOS, например с использованием Homebrew ...
+    echo "Идет настройка для macOS..."
+
+    # Проверка и установка Homebrew
+    if ! command -v brew &> /dev/null; then
+        echo "Установка Homebrew..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    else
+        echo "Homebrew уже установлен."
+    fi
+
+    # Пример установки mkcert через Homebrew
+    if ! command -v mkcert &> /dev/null; then
+        echo "Установка mkcert через Homebrew..."
+        brew install mkcert
+        mkcert -install
+    else
+        echo "mkcert уже установлен."
+    fi
+
+    # Пример установки Docker через Homebrew
+    if ! command -v docker &> /dev/null; then
+        echo "Установка Docker через Homebrew..."
+        brew install --cask docker
+    else
+        echo "Docker уже установлен."
+    fi
 fi
 
 # Проверка и обновление ZIGBEE2MQTT_USB_PATH
