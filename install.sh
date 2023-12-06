@@ -60,7 +60,7 @@ read -p "Найти и установить USB-устройство для Zigb
 if [[ "$zigbee_answer" == "y" ]]; then
     USB_PATH=""
     if [ "$OS" = "Linux" ]; then
-        USB_PATH=$(ls /dev/tty.usb* | head -n 1)
+        USB_PATH=$(ls /dev/ttyACM* /dev/tty.usb* 2>/dev/null | head -n 1)
     elif [ "$OS" = "Darwin" ]; then
         # Поиск USB устройств, подходящих для Zigbee
         USB_PATH=$(ls /dev/tty.usbserial-* /dev/tty.SLAB_USBtoUART 2>/dev/null | head -n 1)
@@ -68,11 +68,9 @@ if [[ "$zigbee_answer" == "y" ]]; then
 
     if [ -z "$USB_PATH" ]; then
         echo "USB-устройство для Zigbee2MQTT не найдено."
-        sed -i'.bak' -e '/ZIGBEE2MQTT_USB_PATH=/d' serverConfig.txt
         echo "ZIGBEE2MQTT_USB_PATH=" >> serverConfig.txt
     else
         echo "Найдено USB-устройство для Zigbee2MQTT: $USB_PATH"
-        sed -i'.bak' -e '/ZIGBEE2MQTT_USB_PATH=/d' serverConfig.txt
         echo "ZIGBEE2MQTT_USB_PATH=$USB_PATH" >> serverConfig.txt
     fi
 fi
