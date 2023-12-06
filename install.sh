@@ -12,7 +12,9 @@ if [ "$OS" = "Linux" ]; then
 
     if ! command -v mkcert &> /dev/null; then
         sudo apt-get install -y libnss3-tools
-        # ... установка mkcert для Linux ...
+        wget -O mkcert https://github.com/FiloSottile/mkcert/releases/download/v1.4.3/mkcert-v1.4.3-linux-amd64
+        chmod +x mkcert
+        sudo mv mkcert /usr/local/bin/
     fi
 
     if ! command -v docker &> /dev/null; then
