@@ -12,7 +12,7 @@ if [ "$OS" = "Linux" ]; then
 
     if ! command -v mkcert &> /dev/null; then
         sudo apt-get install -y libnss3-tools
-        wget -O mkcert https://github.com/FiloSottile/mkcert/releases/download/v1.4.3/mkcert-v1.4.3-linux-amd64
+        wget -O mkcert https://github.com/FiloSottile/mkcert/releases/download/v1.4.3/mkcert-v1.4.3-linux-arm
         chmod +x mkcert
         sudo mv mkcert /usr/local/bin/
     fi
@@ -70,9 +70,11 @@ if [[ "$zigbee_answer" == "y" ]]; then
 
     if [ -z "$USB_PATH" ]; then
         echo "USB-устройство для Zigbee2MQTT не найдено."
+        sed -i'.bak' -e '/ZIGBEE2MQTT_USB_PATH=/d' serverConfig.txt
         echo "ZIGBEE2MQTT_USB_PATH=" >> serverConfig.txt
     else
         echo "Найдено USB-устройство для Zigbee2MQTT: $USB_PATH"
+        sed -i'.bak' -e '/ZIGBEE2MQTT_USB_PATH=/d' serverConfig.txt
         echo "ZIGBEE2MQTT_USB_PATH=$USB_PATH" >> serverConfig.txt
     fi
 fi
@@ -130,7 +132,7 @@ docker volume rm gethome-local-server_db_data
 docker-compose up --build -d
 docker-compose run app knex migrate:latest
 docker-compose run app knex seed:run
-# docker container prune -f
-# docker rmi $(docker images -f "dangling=true" -q)
+docker container prune -f
+docker rmi $(docker images -f "dangling=true" -q)
 
 echo "Установка завершена."
