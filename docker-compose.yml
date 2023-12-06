@@ -66,8 +66,7 @@ services:
       # Frontend port
       - 8080:8080
     devices:
-      # - /dev/ttyACM0:/dev/ttyACM0
-      - /dev/tty.usbserial-202308291718301:/dev/ttyACM0 # Нужно переделать - брать из файла конфига
+      - "${ZIGBEE2MQTT_USB_PATH}:/dev/ttyACM0"
 
 volumes:
   db_data:

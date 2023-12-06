@@ -106,6 +106,13 @@ if [[ "$ssl_answer" == "y" ]]; then
     fi
 fi
 
+
+# Чтение значения из serverConfig.txt
+ZIGBEE2MQTT_USB_PATH=$(grep "ZIGBEE2MQTT_USB_PATH=" serverConfig.txt | cut -d'=' -f2)
+# Установка переменной окружения
+export ZIGBEE2MQTT_USB_PATH
+
+
 # Обновление репозитория
 git pull
 
