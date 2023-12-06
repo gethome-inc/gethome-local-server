@@ -130,7 +130,7 @@ docker volume rm gethome-local-server_db_data
 docker-compose up --build -d
 docker-compose run app knex migrate:latest
 docker-compose run app knex seed:run
-docker container prune -f
-docker rmi $(docker images -f "dangling=true" -q)
+# docker container prune -f
+# docker rmi $(docker images -f "dangling=true" -q)
 
 echo "Установка завершена."
