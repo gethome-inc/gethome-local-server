@@ -87,7 +87,11 @@ if [[ "$ip_answer" == "y" ]]; then
     echo "static domain_name_servers=dns_ip" >> /etc/dhcpcd.conf
     LOCAL_IP=$static_ip
 else
-    LOCAL_IP="$(hostname -I | cut -d' ' -f1)"
+    if [ "$OS" = "Linux" ]; then
+        LOCAL_IP="$(hostname -I | cut -d' ' -f1)"
+    elif [ "$OS" = "Darwin" ]; then
+        LOCAL_IP="$(ipconfig getifaddr en0)" # Или en1 для Ethernet
+    fi
 fi
 echo "Используемый IP-адрес: $LOCAL_IP"
 
