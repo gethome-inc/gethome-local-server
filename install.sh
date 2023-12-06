@@ -58,10 +58,12 @@ fi
 # Проверка и обновление ZIGBEE2MQTT_USB_PATH
 read -p "Найти и установить USB-устройство для Zigbee2MQTT? (y/n): " zigbee_answer
 if [[ "$zigbee_answer" == "y" ]]; then
+    USB_PATH=""
     if [ "$OS" = "Linux" ]; then
         USB_PATH=$(ls /dev/tty.usb* | head -n 1)
     elif [ "$OS" = "Darwin" ]; then
-        USB_PATH=$(ls /dev/tty.* | head -n 1) # Может потребоваться другая команда для macOS
+        # Поиск USB устройств, подходящих для Zigbee
+        USB_PATH=$(ls /dev/tty.usbserial-* /dev/tty.SLAB_USBtoUART 2>/dev/null | head -n 1)
     fi
 
     if [ -z "$USB_PATH" ]; then
